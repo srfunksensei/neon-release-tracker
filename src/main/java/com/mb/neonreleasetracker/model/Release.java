@@ -28,24 +28,24 @@ public class Release {
 	@GeneratedValue
 	private Long id;
 
-	@Column(updatable = false, nullable = false)
+	@Column(name = "created_date", updatable = false, nullable = false)
 	@CreatedDate
 	private LocalDate createdDate;
 
-	@Column(nullable = false)
+	@Column(name = "updated_date", nullable = false)
 	@LastModifiedDate
 	private LocalDate updatedDate;
 	
-	@Column(nullable = false)
+	@Column(name = "title", nullable = false)
 	private String title;
 
-	@Column
+	@Column(name = "description")
 	private String description;
 
-	@Column
+	@Column(name = "release_date")
 	private LocalDate releaseDate;
 
-	@Column(nullable = false)
+	@Column(name = "status", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private ReleaseStatus status;
 }
