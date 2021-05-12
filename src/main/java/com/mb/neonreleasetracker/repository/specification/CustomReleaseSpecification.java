@@ -15,11 +15,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ReleaseSpecification implements Specification<Release> {
+public class CustomReleaseSpecification implements Specification<Release> {
 
 	private static final long serialVersionUID = 7012076206604215272L;
 
-	private SpecSearchCriteria criteria;
+	private final SpecSearchCriteria criteria;
 
 	@Override
 	public Predicate toPredicate(Root<Release> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

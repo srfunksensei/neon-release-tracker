@@ -18,7 +18,7 @@ import com.mb.neonreleasetracker.dto.ReleaseDto;
 import com.mb.neonreleasetracker.model.Release;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 import com.mb.neonreleasetracker.repository.ReleaseRepository;
-import com.mb.neonreleasetracker.repository.specification.ReleaseSpecificationsBuilder;
+import com.mb.neonreleasetracker.repository.specification.CustomReleaseSpecificationsBuilder;
 import com.mb.neonreleasetracker.util.SearchOperation;
 import com.mb.neonreleasetracker.util.SpecSearchCriteria;
 
@@ -59,7 +59,7 @@ public class ReleaseServiceImpl implements ReleaseService {
 	}
 
 	public Page<Release> findAll(String search, Pageable pageable) {
-		final ReleaseSpecificationsBuilder builder = new ReleaseSpecificationsBuilder();
+		final CustomReleaseSpecificationsBuilder builder = new CustomReleaseSpecificationsBuilder();
 		final Matcher matcher = pattern.matcher(search + ",");
 		while (matcher.find()) {
 			final String key = matcher.group(1);
