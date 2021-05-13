@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -25,8 +26,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Release {
 	@Id
-	@GeneratedValue
-	private Long id;
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	@Column(name = "id")
+	private String id;
 
 	@Column(name = "created_date", updatable = false, nullable = false)
 	@CreatedDate

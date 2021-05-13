@@ -55,7 +55,7 @@ public class ReleaseController {
 	}
 	
 	@GetMapping(value = "/{releaseId}")
-	public ResponseEntity<ReleaseResource> findOne(@PathVariable Long releaseId) {
+	public ResponseEntity<ReleaseResource> findOne(@PathVariable String releaseId) {
 		final Optional<ReleaseResource> resourceOpt = releaseService.findOne(releaseId).map(releaseResourceAssembler::toResource);
 		return resourceOpt //
 				.map(ResponseEntity::ok) //
@@ -80,7 +80,7 @@ public class ReleaseController {
 	}
 	
 	@DeleteMapping(value = "/{releaseId}")
-	public void deleteOne(@PathVariable Long releaseId) {
+	public void deleteOne(@PathVariable String releaseId) {
 		releaseService.deleteOne(releaseId);
 	}
 }

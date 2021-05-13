@@ -33,7 +33,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testFindOne_noReleaseFound() {
-		final Long id = 1L;
+		final String id = "1";
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
 		final Optional<Release> actual = releaseService.findOne(id);
@@ -42,7 +42,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testFindOne() {
-		final Long id = 1L;
+		final String id = "1";
 		final Release release = createRelease(id);
 
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.of(release));
@@ -62,7 +62,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testCreate_releaseDateNull() {
-		final Long id = 1L;
+		final String id = "1";
 		final Release release = createRelease(id);
 		
 		when(releaseRepositoryMock.save(Mockito.any(Release.class))).thenReturn(release);
@@ -79,7 +79,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testCreate_releaseDateNotNull() {
-		final Long id = 1L;
+		final String id = "1";
 		final LocalDate twoWeeksFromNow = LocalDate.now().plusWeeks(2);
 		final Release release = createRelease(id);
 		release.setReleaseDate(twoWeeksFromNow);
@@ -110,7 +110,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testUpdate_noReleaseFound() {
-		final Long id = 1L;
+		final String id = "1";
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
 		final String title = "title", description = "description";
@@ -123,7 +123,7 @@ public class ReleaseServiceImplTest {
 
 	@Test
 	public void testFullUpdate() {
-		final Long id = 1L;
+		final String id = "1";
 		final Release release = createRelease(id);
 
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.of(release));
@@ -151,7 +151,7 @@ public class ReleaseServiceImplTest {
 		Assert.assertNull(actual.getReleaseDate());
 	}
 
-	private Release createRelease(final Long id) {
+	private Release createRelease(final String id) {
 		final Release release = new Release();
 		release.setId(id);
 		release.setCreatedDate(LocalDate.now());

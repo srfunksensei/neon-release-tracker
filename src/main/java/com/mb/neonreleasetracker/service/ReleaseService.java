@@ -11,11 +11,11 @@ import com.mb.neonreleasetracker.model.Release;
 
 public interface ReleaseService {
 
-	Optional<Release> findOne(final Long id);
+	Optional<Release> findOne(final String id);
 	Page<Release> findAll(final String searchQuery, final Pageable pageable);
 	Page<Release> findAll(final ReleaseSearchDto searchDto, final Pageable pageable);
 
 	Release create(final ReleaseDto release);
-	Optional<Release> update(final Long id, final ReleaseDto releaseDto);
-	void deleteOne(final Long releaseId);
+	Optional<Release> update(final String id, final ReleaseDto releaseDto);
+	void deleteOne(final String id);
 }

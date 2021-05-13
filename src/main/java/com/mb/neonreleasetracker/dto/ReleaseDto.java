@@ -17,8 +17,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class ReleaseDto {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Optional<Long> releaseId;
-	
+	private Optional<String> releaseId;
+
 	@NotNull
 	@NotBlank(message = "Title is mandatory")
 	private String title;

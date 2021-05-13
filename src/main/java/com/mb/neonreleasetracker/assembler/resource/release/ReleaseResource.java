@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ReleaseResource extends ResourceSupport {
-	private Long releaseId;
+	private String releaseId;
 	private String title;
 	private String description;
 	private ReleaseStatus status;

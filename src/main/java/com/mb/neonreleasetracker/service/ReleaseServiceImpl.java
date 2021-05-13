@@ -51,7 +51,7 @@ public class ReleaseServiceImpl implements ReleaseService {
 	}
 
 	@Override
-	public Optional<Release> findOne(final Long id) {
+	public Optional<Release> findOne(final String id) {
 		return releaseRepository.findById(id);
 	}
 
@@ -92,8 +92,8 @@ public class ReleaseServiceImpl implements ReleaseService {
 	}
 
 	@Override
-	public Optional<Release> update(final Long id, final ReleaseDto releaseDto) {
-		final Optional<Long> releaseIdOpt = releaseDto.getReleaseId();
+	public Optional<Release> update(final String id, final ReleaseDto releaseDto) {
+		final Optional<String> releaseIdOpt = releaseDto.getReleaseId();
 
 		if (!releaseIdOpt.isPresent()) {
 			return Optional.empty();
@@ -111,7 +111,7 @@ public class ReleaseServiceImpl implements ReleaseService {
 	}
 
 	@Override
-	public void deleteOne(final Long releaseId) {
+	public void deleteOne(final String releaseId) {
 		if (releaseRepository.existsById(releaseId)) {
 			releaseRepository.deleteById(releaseId);
 		}

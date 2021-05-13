@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import com.mb.neonreleasetracker.model.Release;
 
 @Repository
-public interface ReleaseRepository extends JpaRepository<Release, Long>, JpaSpecificationExecutor<Release> {
+public interface ReleaseRepository extends JpaRepository<Release, String>, JpaSpecificationExecutor<Release> {
 }

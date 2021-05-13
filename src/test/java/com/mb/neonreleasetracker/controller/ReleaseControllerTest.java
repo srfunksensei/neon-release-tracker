@@ -69,7 +69,7 @@ public class ReleaseControllerTest {
 
 	@Test
 	public void givenAnyFilter_whenGetAllReleases_thenReturnJsonArray() throws Exception {
-		final Release release1 = createRelease(1L), release2 = createRelease(2L);
+		final Release release1 = createRelease("1"), release2 = createRelease("2");
 
 		final List<Release> releases = Collections.unmodifiableList(Arrays.asList(release1, release2));
 		final Page<Release> releasePages = new PageImpl<>(releases);
@@ -87,7 +87,7 @@ public class ReleaseControllerTest {
 
 	@Test
 	public void givenAnyFilter_whenGetAllReleases_thenReturnJsonArrayPaginatedSize() throws Exception {
-		final Release release1 = createRelease(1L), release2 = createRelease(2L);
+		final Release release1 = createRelease("1"), release2 = createRelease("2");
 
 		final List<Release> releases = Collections.unmodifiableList(Arrays.asList(release1, release2));
 		final Page<Release> releasePages = new PageImpl<>(releases);
@@ -102,7 +102,7 @@ public class ReleaseControllerTest {
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.page.totalElements", equalTo(releases.size()))) //
 				.andExpect(
-						jsonPath("$._embedded.releaseResourceList[0].releaseId", equalTo(release1.getId().intValue())));
+						jsonPath("$._embedded.releaseResourceList[0].releaseId", equalTo(release1.getId())));
 
 		verify(releaseServiceMock, times(1)).findAll(anyString(), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);
@@ -110,37 +110,37 @@ public class ReleaseControllerTest {
 
 	@Test
 	public void givenId_whenGetRelease_thenReturnOk() throws Exception {
-		final Release release = createRelease(1L);
+		final Release release = createRelease("1");
 
-		when(releaseServiceMock.findOne(any(Long.class))).thenReturn(Optional.of(release));
+		when(releaseServiceMock.findOne(anyString())).thenReturn(Optional.of(release));
 
 		mvc.perform(get("/releases/" + release.getId()) //
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.releaseId", equalTo(release.getId().intValue()))) //
+				.andExpect(jsonPath("$.releaseId", equalTo(release.getId()))) //
 				.andExpect(jsonPath("$.title", equalTo(release.getTitle()))) //
 				.andExpect(jsonPath("$.description", equalTo(release.getDescription()))) //
 				.andExpect(jsonPath("$.status", equalTo(release.getStatus().toString())));
 
-		verify(releaseServiceMock, times(1)).findOne(any(Long.class));
+		verify(releaseServiceMock, times(1)).findOne(anyString());
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
 	@Test
 	public void givenId_whenGetRelease_thenReturnNotFound() throws Exception {
-		when(releaseServiceMock.findOne(any(Long.class))).thenReturn(Optional.empty());
+		when(releaseServiceMock.findOne(anyString())).thenReturn(Optional.empty());
 
 		mvc.perform(get("/releases/1") //
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isNotFound());
 
-		verify(releaseServiceMock, times(1)).findOne(any(Long.class));
+		verify(releaseServiceMock, times(1)).findOne(anyString());
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
 	@Test
 	public void givenRelease_whenCreateRelease_thenReturnCreated() throws Exception {
-		final Release release = createRelease(1L);
+		final Release release = createRelease("1");
 		when(releaseServiceMock.create(any(ReleaseDto.class))).thenReturn(release);
 
 		final String jsonDto = "{\"title\" : \"milan12\",\"description\" : \"d2\", \"status\": \""
@@ -150,7 +150,7 @@ public class ReleaseControllerTest {
 				.content(jsonDto) //
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isCreated()) //
-				.andExpect(jsonPath("$.releaseId", equalTo(release.getId().intValue()))) //
+				.andExpect(jsonPath("$.releaseId", equalTo(release.getId()))) //
 				.andExpect(jsonPath("$.title", equalTo(release.getTitle()))) //
 				.andExpect(jsonPath("$.description", equalTo(release.getDescription()))) //
 				.andExpect(jsonPath("$.status", equalTo(release.getStatus().toString())));
@@ -161,8 +161,8 @@ public class ReleaseControllerTest {
 
 	@Test
 	public void givenRelease_whenUpdateRelease_thenReturnOk() throws Exception {
-		final Release release = createRelease(1L);
-		when(releaseServiceMock.update(anyLong(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.of(release));
+		final Release release = createRelease("1");
+		when(releaseServiceMock.update(anyString(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.of(release));
 
 		final String jsonDto = "{\"releaseId\" : " + release.getId()
 				+ ",\"title\" : \"milan12\",\"description\" : \"d2\", \"status\": \""
@@ -172,13 +172,13 @@ public class ReleaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isOk());
 
-		verify(releaseServiceMock, times(1)).update(anyLong(), any(ReleaseDto.class));
+		verify(releaseServiceMock, times(1)).update(anyString(), any(ReleaseDto.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
 	@Test
 	public void givenRelease_whenUpdateRelease_thenReturnNotFound() throws Exception {
-		when(releaseServiceMock.update(anyLong(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.empty());
+		when(releaseServiceMock.update(anyString(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.empty());
 
 		final String jsonDto = "{\"title\" : \"milan12\",\"description\" : \"d2\"}";
 		mvc.perform(put("/releases/update") //
@@ -186,11 +186,11 @@ public class ReleaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isNotFound());
 
-		verify(releaseServiceMock, times(1)).update(anyLong(), any(ReleaseDto.class));
+		verify(releaseServiceMock, times(1)).update(anyString(), any(ReleaseDto.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
-	private Release createRelease(final Long id) {
+	private Release createRelease(final String id) {
 		final Release release = new Release();
 		release.setId(id);
 		release.setCreatedDate(LocalDate.now());
