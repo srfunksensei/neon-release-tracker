@@ -70,7 +70,7 @@ public class ReleaseController {
 
 	@PutMapping(value = "/update")
 	public ResponseEntity<ReleaseResource> update(@Valid @RequestBody ReleaseDto releaseDto) {
-		final Optional<Release> releaseOpt = releaseService.update(releaseDto);
+		final Optional<Release> releaseOpt = releaseService.update(releaseDto.getReleaseId().get(), releaseDto);
 		
 		if (!releaseOpt.isPresent()) {
 			return ResponseEntity.notFound().build();

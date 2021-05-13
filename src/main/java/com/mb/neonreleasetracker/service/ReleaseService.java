@@ -2,6 +2,7 @@ package com.mb.neonreleasetracker.service;
 
 import java.util.Optional;
 
+import com.mb.neonreleasetracker.dto.ReleaseSearchDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -10,10 +11,11 @@ import com.mb.neonreleasetracker.model.Release;
 
 public interface ReleaseService {
 
-	public Optional<Release> findOne(Long filmId);
-	public Page<Release> findAll(String search, Pageable pageable);
-		
-	public Release create(final ReleaseDto release);
-	public Optional<Release> update(final ReleaseDto releaseDto);
-	public void deleteOne(final Long releaseId);
+	Optional<Release> findOne(final Long id);
+	Page<Release> findAll(final String searchQuery, final Pageable pageable);
+	Page<Release> findAll(final ReleaseSearchDto searchDto, final Pageable pageable);
+
+	Release create(final ReleaseDto release);
+	Optional<Release> update(final Long id, final ReleaseDto releaseDto);
+	void deleteOne(final Long releaseId);
 }

@@ -1,27 +1,12 @@
 package com.mb.neonreleasetracker.controller;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
+import com.mb.neonreleasetracker.assembler.resource.release.ReleaseResourceAssemblerSupport;
+import com.mb.neonreleasetracker.dto.ReleaseDto;
+import com.mb.neonreleasetracker.model.Release;
+import com.mb.neonreleasetracker.model.ReleaseStatus;
+import com.mb.neonreleasetracker.service.ReleaseService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,11 +22,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.mb.neonreleasetracker.assembler.resource.release.ReleaseResourceAssemblerSupport;
-import com.mb.neonreleasetracker.dto.ReleaseDto;
-import com.mb.neonreleasetracker.model.Release;
-import com.mb.neonreleasetracker.model.ReleaseStatus;
-import com.mb.neonreleasetracker.service.ReleaseService;
+import java.time.LocalDate;
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ReleaseController.class)
@@ -66,14 +56,14 @@ public class ReleaseControllerTest {
 	public void givenAnyFilter_whenGetAllReleases_thenReturnEmptyJsonArray() throws Exception {
 		final Page<Release> noReleases = new PageImpl<>(new ArrayList<Release>());
 
-		when(releaseServiceMock.findAll(ArgumentMatchers.isNull(), any(Pageable.class))).thenReturn(noReleases);
+		when(releaseServiceMock.findAll(anyString(), any(Pageable.class))).thenReturn(noReleases);
 
 		mvc.perform(get("/releases") //
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.page.totalElements", equalTo(0)));
 
-		verify(releaseServiceMock, times(1)).findAll(ArgumentMatchers.isNull(), any(Pageable.class));
+		verify(releaseServiceMock, times(1)).findAll(anyString(), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
@@ -84,14 +74,14 @@ public class ReleaseControllerTest {
 		final List<Release> releases = Collections.unmodifiableList(Arrays.asList(release1, release2));
 		final Page<Release> releasePages = new PageImpl<>(releases);
 
-		when(releaseServiceMock.findAll(ArgumentMatchers.isNull(), any(Pageable.class))).thenReturn(releasePages);
+		when(releaseServiceMock.findAll(anyString(), any(Pageable.class))).thenReturn(releasePages);
 
 		mvc.perform(get("/releases") //
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.page.totalElements", equalTo(releases.size())));
 
-		verify(releaseServiceMock, times(1)).findAll(ArgumentMatchers.isNull(), any(Pageable.class));
+		verify(releaseServiceMock, times(1)).findAll(anyString(), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
@@ -102,7 +92,7 @@ public class ReleaseControllerTest {
 		final List<Release> releases = Collections.unmodifiableList(Arrays.asList(release1, release2));
 		final Page<Release> releasePages = new PageImpl<>(releases);
 
-		when(releaseServiceMock.findAll(ArgumentMatchers.isNull(), any(Pageable.class))).thenReturn(releasePages);
+		when(releaseServiceMock.findAll(anyString(), any(Pageable.class))).thenReturn(releasePages);
 
 		final int pageSize = 1;
 
@@ -114,7 +104,7 @@ public class ReleaseControllerTest {
 				.andExpect(
 						jsonPath("$._embedded.releaseResourceList[0].releaseId", equalTo(release1.getId().intValue())));
 
-		verify(releaseServiceMock, times(1)).findAll(ArgumentMatchers.isNull(), any(Pageable.class));
+		verify(releaseServiceMock, times(1)).findAll(anyString(), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
@@ -172,7 +162,7 @@ public class ReleaseControllerTest {
 	@Test
 	public void givenRelease_whenUpdateRelease_thenReturnOk() throws Exception {
 		final Release release = createRelease(1L);
-		when(releaseServiceMock.update(Mockito.any(ReleaseDto.class))).thenReturn(Optional.of(release));
+		when(releaseServiceMock.update(anyLong(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.of(release));
 
 		final String jsonDto = "{\"releaseId\" : " + release.getId()
 				+ ",\"title\" : \"milan12\",\"description\" : \"d2\", \"status\": \""
@@ -182,13 +172,13 @@ public class ReleaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isOk());
 
-		verify(releaseServiceMock, times(1)).update(any(ReleaseDto.class));
+		verify(releaseServiceMock, times(1)).update(anyLong(), any(ReleaseDto.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
 	@Test
 	public void givenRelease_whenUpdateRelease_thenReturnNotFound() throws Exception {
-		when(releaseServiceMock.update(Mockito.any(ReleaseDto.class))).thenReturn(Optional.empty());
+		when(releaseServiceMock.update(anyLong(), Mockito.any(ReleaseDto.class))).thenReturn(Optional.empty());
 
 		final String jsonDto = "{\"title\" : \"milan12\",\"description\" : \"d2\"}";
 		mvc.perform(put("/releases/update") //
@@ -196,7 +186,7 @@ public class ReleaseControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)) //
 				.andExpect(status().isNotFound());
 
-		verify(releaseServiceMock, times(1)).update(any(ReleaseDto.class));
+		verify(releaseServiceMock, times(1)).update(anyLong(), any(ReleaseDto.class));
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 

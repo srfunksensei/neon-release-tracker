@@ -104,7 +104,7 @@ public class ReleaseServiceImplTest {
 
 		final ReleaseDto dto = new ReleaseDto(Optional.empty(), title, description, null, null);
 
-		final Optional<Release> actual = releaseService.update(dto);
+		final Optional<Release> actual = releaseService.update(dto.getReleaseId().get(), dto);
 		Assert.assertEquals(Optional.empty(), actual);
 	}
 
@@ -117,7 +117,7 @@ public class ReleaseServiceImplTest {
 
 		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description, null, null);
 
-		final Optional<Release> actual = releaseService.update(dto);
+		final Optional<Release> actual = releaseService.update(dto.getReleaseId().get(), dto);
 		Assert.assertEquals(Optional.empty(), actual);
 	}
 
@@ -138,7 +138,7 @@ public class ReleaseServiceImplTest {
 		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description,
 				ReleaseStatus.IN_DEVELOPMENT, null);
 
-		final Optional<Release> actualOpt = releaseService.update(dto);
+		final Optional<Release> actualOpt = releaseService.update(dto.getReleaseId().get(), dto);
 		final Release actual = actualOpt.get();
 
 		Assert.assertNotNull(actual);
