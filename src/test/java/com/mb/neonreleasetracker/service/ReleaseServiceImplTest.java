@@ -1,10 +1,11 @@
 package com.mb.neonreleasetracker.service;
 
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
+import com.mb.neonreleasetracker.dto.ReleaseDto;
+import com.mb.neonreleasetracker.dto.ReleaseSearchDto;
+import com.mb.neonreleasetracker.exception.ResourceNotFoundException;
+import com.mb.neonreleasetracker.model.Release;
+import com.mb.neonreleasetracker.model.ReleaseStatus;
+import com.mb.neonreleasetracker.repository.ReleaseRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,11 +13,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import com.mb.neonreleasetracker.dto.ReleaseDto;
-import com.mb.neonreleasetracker.model.Release;
-import com.mb.neonreleasetracker.model.ReleaseStatus;
-import com.mb.neonreleasetracker.repository.ReleaseRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReleaseServiceImplTest {
@@ -32,7 +42,7 @@ public class ReleaseServiceImplTest {
 	}
 
 	@Test
-	public void testFindOne_noReleaseFound() {
+	public void findOne_noReleaseFound() {
 		final String id = "1";
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
@@ -41,15 +51,16 @@ public class ReleaseServiceImplTest {
 	}
 
 	@Test
-	public void testFindOne() {
+	public void findOne() {
 		final String id = "1";
 		final Release release = createRelease(id);
 
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.of(release));
 
 		final Optional<Release> actualOpt = releaseService.findOne(id);
-		final Release actual = actualOpt.get();
+		Assert.assertTrue(actualOpt.isPresent());
 
+		final Release actual = actualOpt.get();
 		Assert.assertNotNull(actual);
 		Assert.assertEquals(id, actual.getId());
 		Assert.assertEquals(release.getTitle(), actual.getTitle());
@@ -61,7 +72,7 @@ public class ReleaseServiceImplTest {
 	}
 
 	@Test
-	public void testCreate_releaseDateNull() {
+	public void create_releaseDateNull() {
 		final String id = "1";
 		final Release release = createRelease(id);
 		
@@ -78,7 +89,7 @@ public class ReleaseServiceImplTest {
 	}
 
 	@Test
-	public void testCreate_releaseDateNotNull() {
+	public void create_releaseDateNotNull() {
 		final String id = "1";
 		final LocalDate twoWeeksFromNow = LocalDate.now().plusWeeks(2);
 		final Release release = createRelease(id);
@@ -98,18 +109,17 @@ public class ReleaseServiceImplTest {
 		Assert.assertEquals(twoWeeksFromNow, actual.getReleaseDate());
 	}
 
-	@Test
-	public void testUpdate_noReleaseIdProvided() {
+	@Test(expected = IllegalArgumentException.class)
+	public void update_noReleaseIdProvided() {
 		final String title = "title", description = "description";
 
 		final ReleaseDto dto = new ReleaseDto(Optional.empty(), title, description, null, null);
 
-		final Optional<Release> actual = releaseService.update(dto.getReleaseId().get(), dto);
-		Assert.assertEquals(Optional.empty(), actual);
+		releaseService.update(null, dto);
 	}
 
 	@Test
-	public void testUpdate_noReleaseFound() {
+	public void update_noReleaseFound() {
 		final String id = "1";
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
@@ -117,12 +127,12 @@ public class ReleaseServiceImplTest {
 
 		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description, null, null);
 
-		final Optional<Release> actual = releaseService.update(dto.getReleaseId().get(), dto);
+		final Optional<Release> actual = releaseService.update(id, dto);
 		Assert.assertEquals(Optional.empty(), actual);
 	}
 
 	@Test
-	public void testFullUpdate() {
+	public void update() {
 		final String id = "1";
 		final Release release = createRelease(id);
 
@@ -138,9 +148,10 @@ public class ReleaseServiceImplTest {
 		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description,
 				ReleaseStatus.IN_DEVELOPMENT, null);
 
-		final Optional<Release> actualOpt = releaseService.update(dto.getReleaseId().get(), dto);
-		final Release actual = actualOpt.get();
+		final Optional<Release> actualOpt = releaseService.update(id, dto);
+		Assert.assertTrue(actualOpt.isPresent());
 
+		final Release actual = actualOpt.get();
 		Assert.assertNotNull(actual);
 		Assert.assertEquals(id, actual.getId());
 		Assert.assertEquals(title, actual.getTitle());
@@ -149,6 +160,46 @@ public class ReleaseServiceImplTest {
 		Assert.assertEquals(release.getCreatedDate(), actual.getCreatedDate());
 		Assert.assertNotNull(actual.getUpdatedDate());
 		Assert.assertNull(actual.getReleaseDate());
+	}
+
+	@Test(expected = ResourceNotFoundException.class)
+	public void delete_noReleaseWithProvidedId() {
+		when(releaseRepositoryMock.existsById(anyString())).thenReturn(false);
+
+		releaseService.deleteOne("not-existing-id");
+	}
+
+	@Test
+	public void delete() {
+		when(releaseRepositoryMock.existsById(anyString())).thenReturn(true);
+
+		releaseService.deleteOne("1");
+	}
+
+	@Test
+	public void findAll_searchString() {
+		when(releaseRepositoryMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<Release>()));
+
+		final Page<Release> result = releaseService.findAll("status:ON_DEV, title:v0.0.35", Pageable.unpaged());
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
+	}
+
+	@Test
+	public void findAll_searchDto() {
+		when(releaseRepositoryMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<Release>()));
+
+		final ReleaseSearchDto searchDto = ReleaseSearchDto.builder()
+				.createdDateBefore(LocalDate.now().minusDays(1))
+				.createdDateAfter(LocalDate.now().minusDays(5))
+				.description("test")
+				.title("v0.0.24")
+				.inStatus(Stream.of(ReleaseStatus.DONE).collect(Collectors.toList()))
+				.build();
+
+		final Page<Release> result = releaseService.findAll(searchDto, Pageable.unpaged());
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
 	}
 
 	private Release createRelease(final String id) {

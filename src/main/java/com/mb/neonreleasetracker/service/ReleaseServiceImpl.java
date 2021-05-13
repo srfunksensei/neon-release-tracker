@@ -2,6 +2,7 @@ package com.mb.neonreleasetracker.service;
 
 import com.mb.neonreleasetracker.dto.ReleaseDto;
 import com.mb.neonreleasetracker.dto.ReleaseSearchDto;
+import com.mb.neonreleasetracker.exception.ResourceNotFoundException;
 import com.mb.neonreleasetracker.model.Release;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 import com.mb.neonreleasetracker.repository.ReleaseRepository;
@@ -9,6 +10,7 @@ import com.mb.neonreleasetracker.repository.specification.CustomReleaseSpecifica
 import com.mb.neonreleasetracker.repository.specification.ReleaseSpecificationBuilder;
 import com.mb.neonreleasetracker.util.SearchOperation;
 import com.mb.neonreleasetracker.util.SpecSearchCriteria;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -17,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
 @Service
 public class ReleaseServiceImpl implements ReleaseService {
 
-	private static final Pattern CUSTOM_SEARCH_PATTERN = Pattern.compile("(\\w+?)([:<>~!])(\\w+?|([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))),");
+	private static final Pattern CUSTOM_SEARCH_PATTERN = Pattern.compile("(\\w+?)([:<>~!])(([a-zA-Z0-9_\\.])+|([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])))");
 	
 	private static final ModelMapper MODEL_MAPPER = new ModelMapper();
 
@@ -59,20 +60,25 @@ public class ReleaseServiceImpl implements ReleaseService {
 	public Page<Release> findAll(final String searchQuery, final Pageable pageable) {
 		final CustomReleaseSpecificationsBuilder builder = new CustomReleaseSpecificationsBuilder();
 
-		final Matcher matcher = CUSTOM_SEARCH_PATTERN.matcher(searchQuery + ",");
-		while (matcher.find()) {
-			final String key = matcher.group(1);
-			final SearchOperation op = SearchOperation.getSimpleOperation(matcher.group(2).charAt(0));
-			Object value;
+		if (StringUtils.isNotBlank(searchQuery)) {
+			final String[] queries = searchQuery.split(",");
+			for (final String query : queries) {
+				final Matcher matcher = CUSTOM_SEARCH_PATTERN.matcher(query);
+				while (matcher.find()) {
+					final String key = matcher.group(1);
+					final SearchOperation op = SearchOperation.getSimpleOperation(matcher.group(2).charAt(0));
+					final Object value;
 
-			if (key.equals("status")) {
-				value = ReleaseStatus.valueOf(matcher.group(3));
-			} else {
-				value = matcher.group(3);
+					if (key.equals("status")) {
+						value = ReleaseStatus.valueOf(matcher.group(3));
+					} else {
+						value = matcher.group(3);
+					}
+
+					final SpecSearchCriteria criteria = new SpecSearchCriteria(key, op, value);
+					builder.with(criteria);
+				}
 			}
-
-			final SpecSearchCriteria criteria = new SpecSearchCriteria(key, op, value);
-			builder.with(criteria);
 		}
 
 		return releaseRepository.findAll(builder.build(), pageable);
@@ -93,13 +99,11 @@ public class ReleaseServiceImpl implements ReleaseService {
 
 	@Override
 	public Optional<Release> update(final String id, final ReleaseDto releaseDto) {
-		final Optional<String> releaseIdOpt = releaseDto.getReleaseId();
-
-		if (!releaseIdOpt.isPresent()) {
-			return Optional.empty();
+		if (StringUtils.isBlank(id)) {
+			throw new IllegalArgumentException("id required");
 		}
 
-		final Optional<Release> releaseOpt = releaseRepository.findById(releaseIdOpt.get());
+		final Optional<Release> releaseOpt = releaseRepository.findById(id);
 		if (!releaseOpt.isPresent()) {
 			return Optional.empty();
 		}
@@ -111,9 +115,11 @@ public class ReleaseServiceImpl implements ReleaseService {
 	}
 
 	@Override
-	public void deleteOne(final String releaseId) {
-		if (releaseRepository.existsById(releaseId)) {
-			releaseRepository.deleteById(releaseId);
+	public void deleteOne(final String id) {
+		if (releaseRepository.existsById(id)) {
+			releaseRepository.deleteById(id);
+		} else {
+			throw new ResourceNotFoundException("Release with id [" + id + "] does not exist");
 		}
 	}
 }
