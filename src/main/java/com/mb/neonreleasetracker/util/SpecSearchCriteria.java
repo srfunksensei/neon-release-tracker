@@ -1,9 +1,10 @@
 package com.mb.neonreleasetracker.util;
 
-import java.util.Optional;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
@@ -15,7 +16,6 @@ public class SpecSearchCriteria {
     private boolean orPredicate;
     
 	public SpecSearchCriteria(final String key, final SearchOperation operation, final Object value) {
-        super();
         this.key = key;
         this.operation = operation;
         this.value = value;
@@ -26,12 +26,12 @@ public class SpecSearchCriteria {
         this.orPredicate = orPredicate.isPresent() && orPredicate.get().equals(SearchOperation.OR_PREDICATE_FLAG);
     }
 
-    public SpecSearchCriteria(final String key, final String operation, final Object value, final String prefix, final String suffix) {
-        SearchOperation op = SearchOperation.getSimpleOperation(operation.charAt(0));
+    public SpecSearchCriteria(final String key, final SearchOperation operation, final Object value, final String prefix, final String suffix) {
+        SearchOperation op = operation;
         if (op != null) {
-            if (op == SearchOperation.EQUALITY) { // the operation may be complex operation
-                final boolean startWithAsterisk = prefix != null && prefix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
-                final boolean endWithAsterisk = suffix != null && suffix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
+            if (SearchOperation.EQUALITY.equals(op)) { // the operation may be complex operation
+                final boolean startWithAsterisk = StringUtils.isNotBlank(prefix) && prefix.startsWith(SearchOperation.ZERO_OR_MORE_REGEX);
+                final boolean endWithAsterisk = StringUtils.isNotBlank(suffix) && suffix.startsWith(SearchOperation.ZERO_OR_MORE_REGEX);
 
                 if (startWithAsterisk && endWithAsterisk) {
                     op = SearchOperation.CONTAINS;

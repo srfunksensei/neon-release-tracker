@@ -58,7 +58,7 @@ public class ReleaseServiceImpl implements ReleaseService {
 
 	@Override
 	public Page<Release> findAll(final String searchQuery, final Pageable pageable) {
-		final CustomReleaseSpecificationsBuilder builder = new CustomReleaseSpecificationsBuilder();
+		final CustomReleaseSpecificationsBuilder builder = CustomReleaseSpecificationsBuilder.builder();
 
 		if (StringUtils.isNotBlank(searchQuery)) {
 			final String[] queries = searchQuery.split(",");
