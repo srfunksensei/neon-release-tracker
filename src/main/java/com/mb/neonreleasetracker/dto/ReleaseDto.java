@@ -1,25 +1,20 @@
 package com.mb.neonreleasetracker.dto;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class ReleaseDto {
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Optional<String> releaseId;
 
 	@NotNull
 	@NotBlank(message = "Title is mandatory")

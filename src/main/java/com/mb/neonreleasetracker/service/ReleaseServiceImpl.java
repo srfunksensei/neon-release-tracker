@@ -35,15 +35,7 @@ public class ReleaseServiceImpl implements ReleaseService {
 	@Autowired
 	public ReleaseServiceImpl(final ReleaseRepository releaseRepository) {
 		this.releaseRepository = releaseRepository;
-		
-		final Converter<Optional<Long>, Long> optToLong = new AbstractConverter<Optional<Long>, Long>() {
-			@Override
-			protected Long convert(Optional<Long> arg0) {
-				return arg0.orElse(null);
-			}
-		};
-		MODEL_MAPPER.addConverter(optToLong);
-		
+
 		final Converter<ReleaseStatus, ReleaseStatus> statusConverter = context -> {
 			final ReleaseStatus status = context.getSource();
 			return status != null ? status : context.getDestination();

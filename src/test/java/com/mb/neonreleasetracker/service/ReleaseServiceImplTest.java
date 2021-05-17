@@ -78,7 +78,7 @@ public class ReleaseServiceImplTest {
 		
 		when(releaseRepositoryMock.save(Mockito.any(Release.class))).thenReturn(release);
 		
-		final ReleaseDto dto = new ReleaseDto(Optional.empty(), release.getTitle(), release.getDescription(), null, null);
+		final ReleaseDto dto = new ReleaseDto(release.getTitle(), release.getDescription(), null, null);
 
 		final Release actual = releaseService.create(dto);
 		Assert.assertNotNull(actual.getId());
@@ -97,7 +97,7 @@ public class ReleaseServiceImplTest {
 		
 		when(releaseRepositoryMock.save(Mockito.any(Release.class))).thenReturn(release);
 
-		final ReleaseDto dto = new ReleaseDto(Optional.empty(), release.getTitle(), release.getDescription(), null, twoWeeksFromNow);
+		final ReleaseDto dto = new ReleaseDto(release.getTitle(), release.getDescription(), null, twoWeeksFromNow);
 
 		final Release actual = releaseService.create(dto);
 		Assert.assertNotNull(actual.getId());
@@ -113,7 +113,7 @@ public class ReleaseServiceImplTest {
 	public void update_noReleaseIdProvided() {
 		final String title = "title", description = "description";
 
-		final ReleaseDto dto = new ReleaseDto(Optional.empty(), title, description, null, null);
+		final ReleaseDto dto = new ReleaseDto(title, description, null, null);
 
 		releaseService.update(null, dto);
 	}
@@ -125,7 +125,7 @@ public class ReleaseServiceImplTest {
 
 		final String title = "title", description = "description";
 
-		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description, null, null);
+		final ReleaseDto dto = new ReleaseDto(title, description, null, null);
 
 		final Optional<Release> actual = releaseService.update(id, dto);
 		Assert.assertEquals(Optional.empty(), actual);
@@ -145,7 +145,7 @@ public class ReleaseServiceImplTest {
 		releaseUpdated.setStatus(ReleaseStatus.IN_DEVELOPMENT);
 		when(releaseRepositoryMock.save(Mockito.any(Release.class))).thenReturn(releaseUpdated);
 
-		final ReleaseDto dto = new ReleaseDto(Optional.of(id), title, description,
+		final ReleaseDto dto = new ReleaseDto(title, description,
 				ReleaseStatus.IN_DEVELOPMENT, null);
 
 		final Optional<Release> actualOpt = releaseService.update(id, dto);
