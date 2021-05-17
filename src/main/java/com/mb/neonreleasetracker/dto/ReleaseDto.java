@@ -11,9 +11,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @AllArgsConstructor
 public class ReleaseDto {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
