@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.neonreleasetracker.assembler.resource.release.ReleaseResourceAssemblerSupport;
 import com.mb.neonreleasetracker.dto.ReleaseDto;
 import com.mb.neonreleasetracker.dto.ReleaseSearchDto;
+import com.mb.neonreleasetracker.exception.ResourceNotFoundException;
 import com.mb.neonreleasetracker.model.Release;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 import com.mb.neonreleasetracker.service.ReleaseService;
@@ -288,17 +289,17 @@ public class ReleaseControllerTest {
 		verifyNoMoreInteractions(releaseServiceMock);
 	}
 
-//	@Test
-//	public void givenRelease_whenDeleteRelease_thenReturnNotFound() throws Exception {
-//		doNothing().when(releaseServiceMock).deleteOne(anyString());
-//
-//		mvc.perform(delete("/releases/not-existing-id"))//
-//				.andDo(print()) //
-//				.andExpect(status().isOk());
-//
-//		verify(releaseServiceMock, times(1)).deleteOne(anyString());
-//		verifyNoMoreInteractions(releaseServiceMock);
-//	}
+	@Test
+	public void givenRelease_whenDeleteRelease_thenReturnNotFound() throws Exception {
+		doThrow(new ResourceNotFoundException("not-existing-id")).when(releaseServiceMock).deleteOne(anyString());
+
+		mvc.perform(delete("/releases/not-existing-id"))//
+				.andDo(print()) //
+				.andExpect(status().isNotFound());
+
+		verify(releaseServiceMock, times(1)).deleteOne(anyString());
+		verifyNoMoreInteractions(releaseServiceMock);
+	}
 
 	private Release createRelease(final String id) {
 		final Release release = new Release();
