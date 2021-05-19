@@ -8,8 +8,7 @@ import com.mb.neonreleasetracker.exception.ResourceNotFoundException;
 import com.mb.neonreleasetracker.model.Release;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 import com.mb.neonreleasetracker.service.ReleaseService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.HateoasAwareSpringDataWebConfiguration;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -37,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ReleaseController.class)
 @Import(HateoasAwareSpringDataWebConfiguration.class)
 public class ReleaseControllerTest {
@@ -111,7 +108,7 @@ public class ReleaseControllerTest {
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.page.totalElements", equalTo(releases.size()))) //
 				.andExpect(
-						jsonPath("$._embedded.releaseResourceList[0].releaseId", equalTo(release1.getId())));
+						jsonPath("$._embedded.releaseModelList[0].releaseId", equalTo(release1.getId())));
 
 		verify(releaseServiceMock, times(1)).findAll(anyString(), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);
@@ -170,7 +167,7 @@ public class ReleaseControllerTest {
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.page.totalElements", equalTo(releases.size()))) //
 				.andExpect(
-						jsonPath("$._embedded.releaseResourceList[0].releaseId", equalTo(release1.getId())));
+						jsonPath("$._embedded.releaseModelList[0].releaseId", equalTo(release1.getId())));
 
 		verify(releaseServiceMock, times(1)).findAll(any(ReleaseSearchDto.class), any(Pageable.class));
 		verifyNoMoreInteractions(releaseServiceMock);

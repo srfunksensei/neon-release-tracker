@@ -6,13 +6,13 @@ import com.mb.neonreleasetracker.exception.ResourceNotFoundException;
 import com.mb.neonreleasetracker.model.Release;
 import com.mb.neonreleasetracker.model.ReleaseStatus;
 import com.mb.neonreleasetracker.repository.ReleaseRepository;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReleaseServiceImplTest {
 
 	@Mock
@@ -36,7 +36,7 @@ public class ReleaseServiceImplTest {
 
 	private ReleaseService releaseService;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		releaseService = new ReleaseServiceImpl(releaseRepositoryMock);
 	}
@@ -47,7 +47,7 @@ public class ReleaseServiceImplTest {
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
 		final Optional<Release> actual = releaseService.findOne(id);
-		Assert.assertEquals(Optional.empty(), actual);
+		Assertions.assertEquals(Optional.empty(), actual);
 	}
 
 	@Test
@@ -58,17 +58,17 @@ public class ReleaseServiceImplTest {
 		when(releaseRepositoryMock.findById(id)).thenReturn(Optional.of(release));
 
 		final Optional<Release> actualOpt = releaseService.findOne(id);
-		Assert.assertTrue(actualOpt.isPresent());
+		Assertions.assertTrue(actualOpt.isPresent());
 
 		final Release actual = actualOpt.get();
-		Assert.assertNotNull(actual);
-		Assert.assertEquals(id, actual.getId());
-		Assert.assertEquals(release.getTitle(), actual.getTitle());
-		Assert.assertEquals(release.getDescription(), actual.getDescription());
-		Assert.assertEquals(release.getStatus(), actual.getStatus());
-		Assert.assertEquals(release.getCreatedDate(), actual.getCreatedDate());
-		Assert.assertEquals(release.getUpdatedDate(), actual.getUpdatedDate());
-		Assert.assertEquals(release.getReleaseDate(), actual.getReleaseDate());
+		Assertions.assertNotNull(actual);
+		Assertions.assertEquals(id, actual.getId());
+		Assertions.assertEquals(release.getTitle(), actual.getTitle());
+		Assertions.assertEquals(release.getDescription(), actual.getDescription());
+		Assertions.assertEquals(release.getStatus(), actual.getStatus());
+		Assertions.assertEquals(release.getCreatedDate(), actual.getCreatedDate());
+		Assertions.assertEquals(release.getUpdatedDate(), actual.getUpdatedDate());
+		Assertions.assertEquals(release.getReleaseDate(), actual.getReleaseDate());
 	}
 
 	@Test
@@ -81,11 +81,11 @@ public class ReleaseServiceImplTest {
 		final ReleaseDto dto = new ReleaseDto(release.getTitle(), release.getDescription(), null, null);
 
 		final Release actual = releaseService.create(dto);
-		Assert.assertNotNull(actual.getId());
-		Assert.assertEquals(ReleaseStatus.CREATED, actual.getStatus());
-		Assert.assertNotNull(actual.getCreatedDate());
-		Assert.assertNotNull(actual.getUpdatedDate());
-		Assert.assertNull(actual.getReleaseDate());
+		Assertions.assertNotNull(actual.getId());
+		Assertions.assertEquals(ReleaseStatus.CREATED, actual.getStatus());
+		Assertions.assertNotNull(actual.getCreatedDate());
+		Assertions.assertNotNull(actual.getUpdatedDate());
+		Assertions.assertNull(actual.getReleaseDate());
 	}
 
 	@Test
@@ -100,22 +100,24 @@ public class ReleaseServiceImplTest {
 		final ReleaseDto dto = new ReleaseDto(release.getTitle(), release.getDescription(), null, twoWeeksFromNow);
 
 		final Release actual = releaseService.create(dto);
-		Assert.assertNotNull(actual.getId());
-		Assert.assertEquals(release.getTitle(), actual.getTitle());
-		Assert.assertEquals(release.getDescription(), actual.getDescription());
-		Assert.assertEquals(ReleaseStatus.CREATED, actual.getStatus());
-		Assert.assertNotNull(actual.getCreatedDate());
-		Assert.assertNotNull(actual.getUpdatedDate());
-		Assert.assertEquals(twoWeeksFromNow, actual.getReleaseDate());
+		Assertions.assertNotNull(actual.getId());
+		Assertions.assertEquals(release.getTitle(), actual.getTitle());
+		Assertions.assertEquals(release.getDescription(), actual.getDescription());
+		Assertions.assertEquals(ReleaseStatus.CREATED, actual.getStatus());
+		Assertions.assertNotNull(actual.getCreatedDate());
+		Assertions.assertNotNull(actual.getUpdatedDate());
+		Assertions.assertEquals(twoWeeksFromNow, actual.getReleaseDate());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void update_noReleaseIdProvided() {
-		final String title = "title", description = "description";
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			final String title = "title", description = "description";
 
-		final ReleaseDto dto = new ReleaseDto(title, description, null, null);
+			final ReleaseDto dto = new ReleaseDto(title, description, null, null);
 
-		releaseService.update(null, dto);
+			releaseService.update(null, dto);
+		});
 	}
 
 	@Test
@@ -128,7 +130,7 @@ public class ReleaseServiceImplTest {
 		final ReleaseDto dto = new ReleaseDto(title, description, null, null);
 
 		final Optional<Release> actual = releaseService.update(id, dto);
-		Assert.assertEquals(Optional.empty(), actual);
+		Assertions.assertEquals(Optional.empty(), actual);
 	}
 
 	@Test
@@ -149,24 +151,24 @@ public class ReleaseServiceImplTest {
 				ReleaseStatus.IN_DEVELOPMENT, null);
 
 		final Optional<Release> actualOpt = releaseService.update(id, dto);
-		Assert.assertTrue(actualOpt.isPresent());
+		Assertions.assertTrue(actualOpt.isPresent());
 
 		final Release actual = actualOpt.get();
-		Assert.assertNotNull(actual);
-		Assert.assertEquals(id, actual.getId());
-		Assert.assertEquals(title, actual.getTitle());
-		Assert.assertEquals(description, actual.getDescription());
-		Assert.assertEquals(ReleaseStatus.IN_DEVELOPMENT, actual.getStatus());
-		Assert.assertEquals(release.getCreatedDate(), actual.getCreatedDate());
-		Assert.assertNotNull(actual.getUpdatedDate());
-		Assert.assertNull(actual.getReleaseDate());
+		Assertions.assertNotNull(actual);
+		Assertions.assertEquals(id, actual.getId());
+		Assertions.assertEquals(title, actual.getTitle());
+		Assertions.assertEquals(description, actual.getDescription());
+		Assertions.assertEquals(ReleaseStatus.IN_DEVELOPMENT, actual.getStatus());
+		Assertions.assertEquals(release.getCreatedDate(), actual.getCreatedDate());
+		Assertions.assertNotNull(actual.getUpdatedDate());
+		Assertions.assertNull(actual.getReleaseDate());
 	}
 
-	@Test(expected = ResourceNotFoundException.class)
+	@Test
 	public void delete_noReleaseWithProvidedId() {
 		when(releaseRepositoryMock.existsById(anyString())).thenReturn(false);
 
-		releaseService.deleteOne("not-existing-id");
+		Assertions.assertThrows(ResourceNotFoundException.class, () -> releaseService.deleteOne("not-existing-id"));
 	}
 
 	@Test
@@ -181,8 +183,8 @@ public class ReleaseServiceImplTest {
 		when(releaseRepositoryMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<Release>()));
 
 		final Page<Release> result = releaseService.findAll("status:ON_DEV, title:v0.0.35", Pageable.unpaged());
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		Assertions.assertNotNull(result);
+		Assertions.assertTrue(result.isEmpty());
 	}
 
 	@Test
@@ -198,8 +200,8 @@ public class ReleaseServiceImplTest {
 				.build();
 
 		final Page<Release> result = releaseService.findAll(searchDto, Pageable.unpaged());
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		Assertions.assertNotNull(result);
+		Assertions.assertTrue(result.isEmpty());
 	}
 
 	private Release createRelease(final String id) {
